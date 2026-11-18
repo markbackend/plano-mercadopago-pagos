@@ -1,0 +1,30 @@
+# Entornos y secretos
+.env
+.env.*
+!.env.example
+.venv/
+venv/
+node_modules/
+
+# Bases de datos y salidas
+datos/
+*.db
+*.db-wal
+*.db-shm
+*.sqlite
+*.sqlite3
+salidas/
+*.log
+
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Editores / sistema
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

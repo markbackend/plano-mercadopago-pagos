@@ -1,0 +1,10 @@
+{
+  "estado": "listo",
+  "pruebas": "87 pasan, 0 fallan",
+  "resumen": "API FastAPI + SQLite que crea órdenes y preferencias de Checkout Pro (link de pago), valida la firma x-signature de los webhooks, consulta el pago a la API, actualiza la orden de forma idempotente, reembolsa y avisa al dueño por webhook o SMTP. Incluye un simulador local de Mercado Pago (checkout falso + notificaciones firmadas), demo.py de 1 minuto y 87 pruebas sin internet.",
+  "pendiente": [
+    "Probar de punta a punta contra el sandbox real de Mercado Pago con credenciales y cuentas de prueba (no se pudo sin cuenta).",
+    "Confirmar en la documentación vigente las tarjetas de prueba y los nombres de los menús del panel antes de pasárselos a un cliente.",
+    "Reembolsos parciales y Checkout API (tarjeta dentro de la web) no están incluidos; se agregan si el cliente los pide."
+  ]
+}

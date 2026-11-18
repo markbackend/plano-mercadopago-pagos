@@ -1,0 +1,29 @@
+{
+  "nombre": "plano-mercadopago-pagos",
+  "sirve_para": [
+    "Integrar Mercado Pago Checkout Pro en una web o tienda y generar links de pago",
+    "Confirmar pagos automáticamente con webhooks firmados (x-signature)",
+    "Avisar al dueño por email o webhook (Slack, Discord, n8n, Zapier) cuando entra un pago",
+    "Reembolsos totales desde la API sin entrar al panel",
+    "Backend de cobro para cursos, entradas, turnos o productos"
+  ],
+  "palabras_clave_workana": [
+    "mercado pago",
+    "mercadopago",
+    "checkout pro",
+    "link de pago",
+    "pasarela de pago",
+    "webhook",
+    "ipn",
+    "notificaciones de pago",
+    "integración de pagos",
+    "cobros online",
+    "fastapi",
+    "python",
+    "api rest"
+  ],
+  "lenguaje": "Python 3.12 (FastAPI + httpx + SQLite)",
+  "pruebas": "87 pasan, 0 fallan",
+  "horas_adaptar": "2-6",
+  "precio_sugerido_usd": "150-450"
+}
