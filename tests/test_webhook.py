@@ -139,3 +139,25 @@ def test_concurrencia_misma_notificacion_en_paralelo(api, avisador):
         h.join()
     assert sorted(resultados) == ["duplicada"] * 7 + ["procesada"]
     assert len(avisador.enviados) == 1
+
+
+def test_doble_cobro_queda_en_revision_y_avisa(api, avisador):
+    """El comprador paga dos veces la misma orden (dos pestañas): hay que avisar para devolver uno."""
+    orden = crear_orden(api)
+    primero = pagar(api, orden, "approved")["pago"]["id"]
+    segundo = pagar(api, orden, "approved")["pago"]["id"]
+    vista = api.get(f"/ordenes/{orden['id']}").json()
+    assert vista["estado"] == "en_revision"
+    assert "DOBLE COBRO" in vista["observacion"] and str(primero) in vista["observacion"] and str(segundo) in vista["observacion"]
+    assert vista["pago_id"] == str(primero)  # conserva el pago bueno: el reembolso no toca el original
+    assert len(avisador.enviados) == 2  # el aviso del pago y el del doble cobro
+
+
+def test_texto_del_aviso_de_doble_cobro():
+    from app.avisos import Avisador
+    from app.config import Config
+    a = Avisador(Config(modo="simulador").completar())
+    orden = {"id": "o1", "estado": "en_revision", "observacion": "DOBLE COBRO: pagos 1 y 2", "total_centavos": 150000,
+             "moneda": "ARS", "pago_id": "1", "items": []}
+    assert a._texto(orden).startswith("REVISAR: DOBLE COBRO")
+    assert not a._texto({**orden, "estado": "aprobada"}).startswith("REVISAR")

@@ -58,8 +58,13 @@ class Avisador:
             log.error("No se pudo mandar el aviso (%s) de la orden %s: %s", funcion.__name__, orden["id"], exc)
             return f"error: {exc}"
 
+    @staticmethod
+    def _revisar(orden: dict) -> bool:
+        return orden.get("estado") == "en_revision" and bool(orden.get("observacion"))
+
     def _texto(self, orden: dict) -> str:
-        lineas = [
+        lineas = [f"REVISAR: {orden['observacion']}", ""] if self._revisar(orden) else []
+        lineas += [
             f"Pago aprobado en {self.config.nombre_tienda}",
             f"Orden: {orden['id']}",
             f"Total: {formatear_monto(orden['total_centavos'], orden['moneda'])}",
@@ -90,7 +95,8 @@ class Avisador:
     def _por_email(self, orden: dict) -> None:
         c = self.config
         msg = EmailMessage()
-        msg["Subject"] = f"Pago aprobado - orden {orden['id']} - {formatear_monto(orden['total_centavos'], orden['moneda'])}"
+        prefijo = "REVISAR (doble cobro o monto distinto)" if self._revisar(orden) else "Pago aprobado"
+        msg["Subject"] = f"{prefijo} - orden {orden['id']} - {formatear_monto(orden['total_centavos'], orden['moneda'])}"
         msg["From"] = c.smtp_remitente
         msg["To"] = ", ".join(c.aviso_email_para)
         msg.set_content(self._texto(orden))

@@ -23,7 +23,7 @@
     "api rest"
   ],
   "lenguaje": "Python 3.12 (FastAPI + httpx + SQLite)",
-  "pruebas": "87 pasan, 0 fallan",
+  "pruebas": "89 pasan, 0 fallan",
   "horas_adaptar": "2-6",
   "precio_sugerido_usd": "150-450"
 }

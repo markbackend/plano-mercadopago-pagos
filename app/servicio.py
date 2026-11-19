@@ -186,7 +186,15 @@ class ServicioPagos:
                 return {"resultado": "ignorada", "orden_id": orden["id"], "estado": anterior}
 
             observacion = orden.get("observacion")
-            if nuevo == "aprobada":
+            doble_cobro = otro_pago and anterior in ("aprobada", "en_revision") and nuevo == "aprobada"
+            if doble_cobro:
+                # El comprador pagó dos veces la misma orden (dos pestañas, doble clic, etc.): hay que devolver uno.
+                nuevo = "en_revision"
+                observacion = (f"DOBLE COBRO: la orden ya estaba pagada con el pago {orden['pago_id']} y llegó otro "
+                               f"pago aprobado ({pago_id}). Reembolsá uno desde Mercado Pago.")
+                log.error("Orden %s: %s", orden["id"], observacion)
+                self.db.evento(c, orden["id"], "doble_cobro", {"pago_original": orden["pago_id"], "pago_nuevo": pago_id})
+            elif nuevo == "aprobada":
                 pagado = a_centavos(pago.get("transaction_amount") or 0)
                 moneda = pago.get("currency_id") or orden["moneda"]
                 if pagado < orden["total_centavos"] or moneda != orden["moneda"]:
@@ -195,12 +203,13 @@ class ServicioPagos:
                                    f"{orden['moneda']} {orden['total_centavos'] / 100}")
                     log.error("Orden %s: %s", orden["id"], observacion)
 
-            self.db.actualizar_orden(c, orden["id"], estado=nuevo, pago_id=pago_id, estado_mp=status_mp,
-                                     detalle_mp=pago.get("status_detail"), observacion=observacion)
+            # En un doble cobro la orden conserva el pago original (el reembolso automático no debe tocar el bueno).
+            self.db.actualizar_orden(c, orden["id"], estado=nuevo, pago_id=orden["pago_id"] if doble_cobro else pago_id,
+                                     estado_mp=status_mp, detalle_mp=pago.get("status_detail"), observacion=observacion)
             self.db.evento(c, orden["id"], "pago_actualizado",
                            {"pago_id": pago_id, "status": status_mp, "de": anterior, "a": nuevo})
             c.execute("UPDATE notificaciones SET resultado = ? WHERE clave = ?", (nuevo, clave))
-            aviso = nuevo == "aprobada" and anterior != "aprobada"
+            aviso = (nuevo == "aprobada" and anterior != "aprobada") or doble_cobro
 
         log.info("Orden %s: %s -> %s (pago %s, %s)", orden["id"], anterior, nuevo, pago_id, status_mp)
         if aviso and self.avisador.activo:
