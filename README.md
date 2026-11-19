@@ -146,7 +146,7 @@ cliente, configurar el webhook de modo producción (tiene su propia clave secret
 .venv/Scripts/python.exe -m pytest
 ```
 
-87 pruebas, sin internet ni claves: Mercado Pago se reemplaza por el simulador (que es un transporte `httpx`
+89 pruebas, sin internet ni claves: Mercado Pago se reemplaza por el simulador (que es un transporte `httpx`
 falso) o por transportes `httpx.MockTransport` que devuelven errores a pedido. Cubren firma, idempotencia,
 concurrencia, errores de la API, montos, reembolsos, avisos (webhook y SMTP falsos) y configuración.
 
